@@ -260,6 +260,7 @@ public class Game
         Console.WriteLine();
 
         Console.WriteLine($"Current Location: [{PlayerSpaceship.CurrentX},{PlayerSpaceship.CurrentY}]");
+        Console.WriteLine("Your target is [3,3]");
     }
 
     private Galaxey GetCurrentLocation()
@@ -386,7 +387,6 @@ public class Game
     private void EndGame()
     {
         IsGameOver = true;
-        Console.WriteLine("GAME OVER!");
     }
 }
 
@@ -401,7 +401,135 @@ class Program
         Console.WriteLine("                               Press any button to continue");
         Console.ReadKey();
 
-        Game game = new Game(5);
+        //Game game = new Game(4); // size - 1
+        //game.StartGame();
+        TempGame game = new TempGame();
         game.StartGame();
+    }
+}
+
+public class TempGame
+{
+    private bool IsGameOver = false;
+    private string[,] map = new string[3, 3];
+    private Player PlayerSpaceship = new Player();
+
+    public TempGame()
+    {
+        // 初始化地图上的外星人和资源
+        map[0, 0] = "Start";
+        map[0, 1] = "Alien";
+        map[0, 2] = "Resource";
+        map[1, 0] = "Resource";
+        map[1, 1] = "Alien";
+        map[1, 2] = "Resource";
+        map[2, 0] = "Alien";
+        map[2, 1] = "Resource";
+        map[2, 2] = "Goal";
+    }
+
+    public void StartGame()
+    {
+        GameLoop();
+    }
+
+    public void GameLoop()
+    {
+        while (!IsGameOver)
+        {
+            DisplayGameStatus();
+            string command = GetPlayerCommand();
+            ProcessCommand(command);
+            CheckPointTemp(PlayerSpaceship.CurrentX, PlayerSpaceship.CurrentY);
+            UpdateGameStatus();
+        }
+    }
+
+    private void CheckPointTemp(int x, int y)
+    {
+        string encounter = map[x, y];
+        switch (encounter)
+        {
+            case "Alien":
+                Console.WriteLine("You encountered an alien!");
+                // 处理与外星人的互动
+                break;
+            case "Resource":
+                Console.WriteLine("You found a resource!");
+                // 处理资源收集
+                break;
+            case "Goal":
+                Console.WriteLine("You reached the goal!");
+                IsGameOver = true;
+                break;
+            default:
+                Console.WriteLine("Nothing here.");
+                break;
+        }
+    }
+
+    private void DisplayGameStatus()
+    {
+        // 显示游戏状态
+    }
+
+    private string GetPlayerCommand()
+    {
+        // 获取玩家输入的命令
+        return Console.ReadLine();
+    }
+
+    private void ProcessCommand(string command)
+    {
+        // 处理玩家输入的命令
+        switch (command.ToLower())
+        {
+            case "up":
+                PlayerSpaceship.MoveUp();
+                break;
+            case "down":
+                PlayerSpaceship.MoveDown();
+                break;
+            case "left":
+                PlayerSpaceship.MoveLeft();
+                break;
+            case "right":
+                PlayerSpaceship.MoveRight();
+                break;
+            default:
+                Console.WriteLine("Invalid command.");
+                break;
+        }
+    }
+
+    private void UpdateGameStatus()
+    {
+        // 更新游戏状态
+    }
+}
+
+public class Player
+{
+    public int CurrentX { get; set; } = 0;
+    public int CurrentY { get; set; } = 0;
+
+    public void MoveUp()
+    {
+        if (CurrentY > 0) CurrentY--;
+    }
+
+    public void MoveDown()
+    {
+        if (CurrentY < 2) CurrentY++;
+    }
+
+    public void MoveLeft()
+    {
+        if (CurrentX > 0) CurrentX--;
+    }
+
+    public void MoveRight()
+    {
+        if (CurrentX < 2) CurrentX++;
     }
 }
