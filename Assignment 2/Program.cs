@@ -416,7 +416,6 @@ public class TempGame
 
     public TempGame()
     {
-        // 初始化地图上的外星人和资源
         map[0, 0] = "Start";
         map[0, 1] = "Alien";
         map[0, 2] = "Resource";
@@ -441,7 +440,7 @@ public class TempGame
             string command = GetPlayerCommand();
             ProcessCommand(command);
             CheckPointTemp(PlayerSpaceship.CurrentX, PlayerSpaceship.CurrentY);
-            UpdateGameStatus();
+            //UpdateGameStatus();
         }
     }
 
@@ -451,37 +450,62 @@ public class TempGame
         switch (encounter)
         {
             case "Alien":
+                Console.WriteLine("");
                 Console.WriteLine("You encountered an alien!");
-                // 处理与外星人的互动
+                Console.WriteLine("You're under attacked! (-30 Health)");
+                PlayerSpaceship.CostDamage(30);
+                Console.WriteLine("Press any button to continue");
+                Console.ReadKey();
                 break;
             case "Resource":
-                Console.WriteLine("You found a resource!");
-                // 处理资源收集
+                Console.WriteLine("");
+                Console.WriteLine("You found a resource! (+30 Health; -1 Cargo Room)");
+                PlayerSpaceship.CollectResource(30);
+                Console.WriteLine("Press any button to continue");
+                Console.ReadKey();
                 break;
             case "Goal":
+                Console.WriteLine("");
                 Console.WriteLine("You reached the goal!");
+                Console.WriteLine("Press any button to continue");
+                Console.ReadKey();
                 IsGameOver = true;
                 break;
             default:
+                Console.WriteLine("");
                 Console.WriteLine("Nothing here.");
+                Console.WriteLine("Press any button to continue");
+                Console.ReadKey();
                 break;
         }
     }
 
     private void DisplayGameStatus()
     {
-        // 显示游戏状态
+        Console.Clear();
+        Console.WriteLine("Ship Status:");
+        Console.WriteLine($"Ship Name: {PlayerSpaceship.Name}");
+        Console.WriteLine($"Ship Health: {PlayerSpaceship.Health}");
+        //Console.WriteLine($"Ship Attack Power: {PlayerSpaceship.AttackPower}");
+        //Console.WriteLine($"Ship Fuel: {PlayerSpaceship.Fuel}");
+        //Console.WriteLine($"Ship Shield Level: {PlayerSpaceship.ShieldStrength}");
+        Console.WriteLine($"Ship Cargo Capacitty: {PlayerSpaceship.CargoCapacity}");
+        Console.WriteLine();
+
+        Console.WriteLine($"Current Location: [{PlayerSpaceship.CurrentX},{PlayerSpaceship.CurrentY}]");
+        Console.WriteLine("Your target is [2,2]");
     }
 
     private string GetPlayerCommand()
     {
-        // 获取玩家输入的命令
+        Console.WriteLine("");
+        Console.WriteLine("Please select the direction of movement: ");
+        Console.WriteLine("(Please type 'up'; 'down'; 'left'; 'right'");
         return Console.ReadLine();
     }
 
     private void ProcessCommand(string command)
     {
-        // 处理玩家输入的命令
         switch (command.ToLower())
         {
             case "up":
@@ -501,17 +525,28 @@ public class TempGame
                 break;
         }
     }
-
-    private void UpdateGameStatus()
-    {
-        // 更新游戏状态
-    }
 }
 
 public class Player
 {
     public int CurrentX { get; set; } = 0;
     public int CurrentY { get; set; } = 0;
+    public string Name { get; set; }
+    public int Health { get; set; }
+    public int AttackPower { get; set; }
+    public int Fuel { get; set; }
+    public int ShieldStrength { get; set; }
+    public int CargoCapacity { get; set; }
+
+    public Player()
+    {
+        Name = "Player's Ship";
+        Health = 100;
+        AttackPower = 20;
+        Fuel = 100;
+        ShieldStrength = 50;
+        CargoCapacity = 10;
+    }
 
     public void MoveUp()
     {
@@ -531,5 +566,16 @@ public class Player
     public void MoveRight()
     {
         if (CurrentX < 2) CurrentX++;
+    }
+
+    public void CostDamage(int damage)
+    {
+        Health -= damage;
+    }
+
+    public void CollectResource(int resourceNumber)
+    {
+        Health += resourceNumber;
+        CargoCapacity = CargoCapacity - 1;
     }
 }
