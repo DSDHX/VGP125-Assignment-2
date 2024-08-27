@@ -169,12 +169,12 @@ public class Galaxey
 
     public void AddAlien(Alien alien)
     {
-        Aliens.Add( alien );
+        Aliens.Add(alien);
     }
 
     public void AddResource(Resource resource)
     {
-        Resources.Add( resource );
+        Resources.Add(resource);
     }
 
     public void Explore()
@@ -249,6 +249,7 @@ public class Game
 
     private void DisplayGameStatus()
     {
+        Console.Clear();
         Console.WriteLine("Ship Status:");
         Console.WriteLine($"Ship Name: {PlayerSpaceship.Name}");
         Console.WriteLine($"Ship Health: {PlayerSpaceship.Health}");
@@ -258,11 +259,7 @@ public class Game
         Console.WriteLine($"Ship Cargo Capacitty: {PlayerSpaceship.CargoCapacity}");
         Console.WriteLine();
 
-        Galaxey currentLocation = GetCurrentLocation();
-
         Console.WriteLine($"Current Location: [{PlayerSpaceship.CurrentX},{PlayerSpaceship.CurrentY}]");
-        //Console.WriteLine();
-        //Console.WriteLine(currentLocation.GoToOtheerZone());
     }
 
     private Galaxey GetCurrentLocation()
@@ -274,18 +271,116 @@ public class Game
 
     private string GetPlayerCommand()
     {
-        Console.ReadLine();
+        Console.WriteLine("");
+        Console.WriteLine("Please select the direction of movement: ");
+        Console.WriteLine("(Please type 'up'; 'down'; 'left'; 'right'");
         return Console.ReadLine();
     }
 
     private void ProcessCommand(string command)
     {
+        switch(command.ToLower())
+        {
+            case "up":
+                MovePlayer(0, -1);
+                break;
+            case "down":
+                MovePlayer(0, 1);
+                break;
+            case "left":
+                MovePlayer(-1, 0);
+                break;
+            case "right":
+                MovePlayer(1, 0);
+                break;
+            default:
+                Console.WriteLine("");
+                Console.WriteLine("Invalid Input");
+                Console.WriteLine("Press any button to continue");
+                Console.ReadKey();
+                break;
+        }
+    }
 
+    private void MovePlayer(int MoveX, int MoveY)
+    {
+        int newX = PlayerSpaceship.CurrentX + MoveX;
+        int newY = PlayerSpaceship.CurrentY + MoveY;
+
+        if (newX >= 1 && newX < GalaxyMap.GetLength(1) && newY >= 1 && newY < GalaxyMap.GetLength(1))
+        {   
+            PlayerSpaceship.CurrentX = newX;
+            PlayerSpaceship.CurrentY = newY;
+            Console.WriteLine("");
+            Console.WriteLine($"The ship has moved to the [{PlayerSpaceship.CurrentX},{PlayerSpaceship.CurrentY}]");
+            Console.WriteLine("Press any button to continue");
+            Console.ReadKey();
+        }
+        else
+        {
+            Console.WriteLine("");
+            Console.WriteLine("Unable to move to that location beyond the map!");
+            Console.WriteLine("Press any button to continue");
+            Console.ReadKey();
+        }
+        //Galaxey currentLocation = GetCurrentLocation();
+        //Console.WriteLine(currentLocation.GoToOtheerZone());
     }
 
     private void UpdateGameStatus()
     {
+        if (PlayerSpaceship.Fuel <= 0)
+        {
+            Console.WriteLine("Fuel depeletion!");
+            EndGame();
+            return;
+        }
 
+        if (PlayerSpaceship.Health <= 0)
+        {
+            Console.WriteLine("The ship has been destroyed.");
+            EndGame();
+            return;
+        }
+
+        Galaxey currentLocation = GetCurrentLocation();
+        if (currentLocation.Aliens.Count > 0)
+        {
+            Console.WriteLine("You met aliens!");
+            foreach (var alien in currentLocation.Aliens)
+            {
+                PlayerSpaceship.LaserAttack(alien);
+                if (alien.Health > 0)
+                {
+                    alien.LaserAttack(PlayerSpaceship);
+                }
+            }
+
+            currentLocation.Aliens.RemoveAll(alien => alien.Health <= 0);
+        }
+
+        if (currentLocation.Resources.Count > 0)
+        {
+            Console.WriteLine("You found the resources!");
+            foreach (var resource in currentLocation.Resources)
+            {
+                resource.Collect();
+                if (resource is FuelCell fuelCell)
+                {
+                    PlayerSpaceship.Fuel += fuelCell.ResourceNumber;
+                }
+                if (resource is SpaceMineral spaceMineral)
+                {
+                    PlayerSpaceship.ShieldStrength += spaceMineral.ResourceNumber;
+                }
+                if (resource is AncientArtifact ancientArtifact)
+                {
+                    PlayerSpaceship.CargoCapacity -= ancientArtifact.ResourceNumber;
+                }
+
+                currentLocation.Resources.Clear();
+            }
+        }
     }
 
     private void EndGame()
@@ -305,7 +400,6 @@ class Program
         Console.WriteLine("");
         Console.WriteLine("                               Press any button to continue");
         Console.ReadKey();
-        Console.Clear();
 
         Game game = new Game(5);
         game.StartGame();
