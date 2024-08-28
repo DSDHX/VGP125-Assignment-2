@@ -463,6 +463,7 @@ public class TempGame
                 Console.ReadKey();
                 if (PlayerSpaceship.Health <= 0)
                 {
+                    Console.WriteLine("The ship has been destroyed.");
                     EndGame();
                 }
                 break;
