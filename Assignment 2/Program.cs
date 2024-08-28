@@ -440,26 +440,30 @@ public class TempGame
             string command = GetPlayerCommand();
             ProcessCommand(command);
             CheckPointTemp(PlayerSpaceship.CurrentX, PlayerSpaceship.CurrentY);
-            //UpdateGameStatus();
         }
     }
 
     private void CheckPointTemp(int x, int y)
     {
+        PlayerSpaceship.FuelCost(10);
         string encounter = map[x, y];
         switch (encounter)
         {
             case "Alien":
                 Console.WriteLine("");
                 Console.WriteLine("You encountered an alien!");
-                Console.WriteLine("You're under attacked! (-30 Health)");
+                Console.WriteLine("You're under attacked! (-30 Shield or Health)");
                 PlayerSpaceship.CostDamage(30);
                 Console.WriteLine("Press any button to continue");
                 Console.ReadKey();
+                if (PlayerSpaceship.Health <= 0)
+                {
+                    EndGame();
+                }
                 break;
             case "Resource":
                 Console.WriteLine("");
-                Console.WriteLine("You found a resource! (+30 Health; -1 Cargo Room)");
+                Console.WriteLine("You found a resource! (+30 Shield level; -1 Cargo Room; +20 Fuel)");
                 PlayerSpaceship.CollectResource(30);
                 Console.WriteLine("Press any button to continue");
                 Console.ReadKey();
@@ -487,8 +491,8 @@ public class TempGame
         Console.WriteLine($"Ship Name: {PlayerSpaceship.Name}");
         Console.WriteLine($"Ship Health: {PlayerSpaceship.Health}");
         //Console.WriteLine($"Ship Attack Power: {PlayerSpaceship.AttackPower}");
-        //Console.WriteLine($"Ship Fuel: {PlayerSpaceship.Fuel}");
-        //Console.WriteLine($"Ship Shield Level: {PlayerSpaceship.ShieldStrength}");
+        Console.WriteLine($"Ship Fuel: {PlayerSpaceship.Fuel}");
+        Console.WriteLine($"Ship Shield Level: {PlayerSpaceship.ShieldStrength}");
         Console.WriteLine($"Ship Cargo Capacitty: {PlayerSpaceship.CargoCapacity}");
         Console.WriteLine();
 
@@ -499,7 +503,7 @@ public class TempGame
     private string GetPlayerCommand()
     {
         Console.WriteLine("");
-        Console.WriteLine("Please select the direction of movement: ");
+        Console.WriteLine("Please select the direction of movement (every movement - 10 Fuel): ");
         Console.WriteLine("(Please type 'up'; 'down'; 'left'; 'right'");
         return Console.ReadLine();
     }
@@ -524,6 +528,11 @@ public class TempGame
                 Console.WriteLine("Invalid command.");
                 break;
         }
+    }
+
+    private void EndGame()
+    {
+        IsGameOver = true;
     }
 }
 
@@ -570,12 +579,25 @@ public class Player
 
     public void CostDamage(int damage)
     {
-        Health -= damage;
+        if (ShieldStrength > 0)
+        {
+            ShieldStrength -= damage;
+        }
+        else
+        {
+            Health -= damage;
+        }
     }
 
     public void CollectResource(int resourceNumber)
     {
-        Health += resourceNumber;
+        ShieldStrength += resourceNumber;
+        Fuel += resourceNumber;
         CargoCapacity = CargoCapacity - 1;
+    }
+
+    public void FuelCost(int FuelCost)
+    {
+        Fuel -= FuelCost;
     }
 }
