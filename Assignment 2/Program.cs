@@ -1,4 +1,9 @@
-﻿public abstract class GameEntity
+﻿// We initially planned to do a dynamic universe, but due to time issues.
+// We're not quite finished, the current version is from line 395 to 605.
+// This is a very simplified version that only implements the basics (such as moving, meeting resources or aliens).
+// Events are fixed to map coordinates, not dynamic.
+
+public abstract class GameEntity
 {
     public string Name { get; set; }
     public int Health { get; set; }
